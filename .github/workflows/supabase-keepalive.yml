@@ -1,0 +1,25 @@
+name: Supabase Keep-Alive
+
+on:
+  schedule:
+    - cron: '0 8 */2 * *'
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST API
+        run: |
+          echo "Pinging Supabase to keep the project active..."
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://jkrwtsdyycgqamodeici.supabase.co/rest/v1/agencies?select=id&limit=1" \
+            -H "apikey: sb_publishable_Btga5WLOzCNr3LBNReSdgA_tvhsKO76" \
+            -H "Authorization: Bearer sb_publishable_Btga5WLOzCNr3LBNReSdgA_tvhsKO76")
+          echo "HTTP status: $HTTP_CODE"
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 400 ]; then
+            echo "OK — projeto ativo."
+          else
+            echo "Aviso: resposta inesperada ($HTTP_CODE)."
+            exit 1
+          fi
